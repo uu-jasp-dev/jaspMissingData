@@ -57,10 +57,10 @@
 
 #' @export
 pooledLm <- function(formula, data, weights, fType = 1, ...) {
-  
-  saveRDS(formula, "~/software/jasp/modules/imputation/data/formula2.rds")
-  saveRDS(data, "~/software/jasp/modules/imputation/data/impList2.rds")
-  
+
+  # saveRDS(formula, "~/software/jasp/modules/imputation/data/formula2.rds")
+  # saveRDS(data, "~/software/jasp/modules/imputation/data/impList2.rds")
+
   if (mice::is.mids(data))
     fits <- with(data, stats::lm(formula = as.formula(formula), weights = weights, ...))
     # fits <- with(data, stats::lm(formula = as.formula(form), weights = weights, ...))
@@ -77,10 +77,10 @@ pooledLm <- function(formula, data, weights, fType = 1, ...) {
 ###------------------------------------------------------------------------------------------------------------------###
 
 #' @export
-pooledLmObject <- function(fits, 
-                           fType = 1, 
+pooledLmObject <- function(fits,
+                           fType = 1,
                            include = list(model = FALSE, qr = FALSE, x = FALSE),
-                           ...) 
+                           ...)
 {
   fits <- .checkInputs(fits, fType)
 
@@ -132,7 +132,7 @@ pooledLmObject <- function(fits,
   w         <- mean(resVars)
   b         <- var(resVars)
   pooled$s2 <- w + b + (b / length(fits))
-  
+
   ## Calculate the pooled asymptotic covariance matrix of the regression coefficients:
   if(obj$rank > 1)
     pooled$vcov <- .pooledAsymptoticCov(fits$analyses)
@@ -174,7 +174,7 @@ pooledLmObject <- function(fits,
 
 #' @export
 summary.pooledlm <- function(object, ...) {
-  out <- structure(list(), class = c("summary.pooledlm", "summary.lm")) # Maybe we can just use the print method for summary.lm ? 
+  out <- structure(list(), class = c("summary.pooledlm", "summary.lm")) # Maybe we can just use the print method for summary.lm ?
 
   ## We can pull a few things directly from the input object
   out$call      <- object$call
@@ -200,7 +200,7 @@ summary.pooledlm <- function(object, ...) {
   pooledCoefSum <- summary(object$pooled$coef)
 
   ## The coefficients table needs to formatting
-  coefTab <- with(pooledCoefSum, 
+  coefTab <- with(pooledCoefSum,
     cbind("Estimate" = estimate, "Std. Error" = std.error, "t value" = statistic, "Pr(>|t|)" = p.value)
   )
   rownames(coefTab) <- pooledCoefSum$term
@@ -216,7 +216,7 @@ summary.pooledlm <- function(object, ...) {
 ###------------------------------------------------------------------------------------------------------------------###
 
 #' @export
-print.summary.pooledlm <- function(object, allowStarGazing = FALSE, ...) 
+print.summary.pooledlm <- function(object, allowStarGazing = FALSE, ...)
   stats:::print.summary.lm(object, signif.stars = allowStarGazing, ...)
 
 ###------------------------------------------------------------------------------------------------------------------###
