@@ -2,7 +2,7 @@ Package: jaspMissingData
 Type: Package
 Title: A module for missing data analysis in JASP
 Version: 0.1.0
-Date: 2024-11-12
+Date: 2025-08-15
 Author: UU JASP Team
 Website: jasp-stats.org
 Maintainer: JASP Team <info@jasp-stats.org>
@@ -12,11 +12,17 @@ Encoding: UTF-8
 Imports:
   jaspBase,
   jaspGraphs,
-  jaspRegression
+  jaspRegression,
+  ggmice,
+  mice
 Suggests:
-  testthat
+  testthat (>= 3.0.0),
+  devtools,
+  jaspTools
 Remotes:
   jasp-stats/jaspBase,
   jasp-stats/jaspGraphs,
-  jasp-stats/jaspRegression
+  jasp-stats/jaspRegression,
+  jasp-stats/jaspTools
 RoxygenNote: 7.3.2
+Config/testthat/edition: 3

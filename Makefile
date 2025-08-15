@@ -22,12 +22,12 @@ build: R/* roxygen | $(BUILD_DIR)
 	R CMD build ./ > $(BUILD_DIR)/$(PKG_NAME).tar.gz
 
 ## Run unit tests:
-test: tests/* roxygen
-	R CMD check ./
+test: tests/*
+	Rscript -e 'jaspTools::setPkgOption("module.dirs", "./"); jaspTools::testAll()'
 
 ## Update the NAMESPACE and help files:
 roxygen:
-	Rscript --vanilla -e "roxygen2::roxygenize(clean = TRUE)"
+	Rscript -e "roxygen2::roxygenize(clean = TRUE)"
 
 ## Make sure we have a build directory:
 $(BUILD_DIR):
