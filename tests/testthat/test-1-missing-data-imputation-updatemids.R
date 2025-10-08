@@ -27,17 +27,14 @@ test_that(".imputeMissingData correctly calls updateMids",
             mids_update <- result_update$state$other[[1]]
             mids_seed <- result_seed$state$other[[1]]
 
-            # check that we have a mids object in all cases
             expect_s3_class(mids, "mids")
             expect_s3_class(mids_update, "mids")
             expect_s3_class(mids_seed, "mids")
 
-            # check that we increase the number of iterations and keep the first half the same
             expect_true(mids$iteration < mids_update$iteration)
             expect_true(dim(mids$chainMean)[2] < dim(mids_update$chainMean)[2])
             expect_equal(mids$chainMean[, 1:5, ], mids_update$chainMean[, 1:5, ])
 
-            # check that we restart when the seed is changed, but do have 5 different iterations
             expect_equal(mids_seed$iteration, 5)
             expect_false(isTRUE(all.equal(mids$chainMean[, 1:5, ], mids_seed$chainMean[, 1:5, ])))
           }
