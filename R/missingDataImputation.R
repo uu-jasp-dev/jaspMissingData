@@ -73,11 +73,9 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     if (options$densityPlot && is.null(jaspResults[["ConvergencePlots"]][["DensityPlots"]]))
       .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
 
-    if (options$runLinearRegression) {
-      .lmFunction <<- .linregSetFittingFunction(options) # The deep assignment here is almost certainly a stupid idea
-
-      .runRegression(jaspResults, jaspResults[["MiceMids"]], options)
-
+    if (options$runLinearRegression && .readyForLinReg(options, jaspResults[["MiceMids"]])) {
+      jaspRegression:::.linregSetFittingFunction(options)
+      .runRegression(jaspResults, jaspResults[["MiceMids"]], options, ready = TRUE)
     }
   }
 

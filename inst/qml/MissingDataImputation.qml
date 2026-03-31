@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2024 Utrecht University
+// Copyright (C) 2026 Utrecht University
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -17,11 +17,10 @@
 //
 
 import QtQuick
-import QtQuick.Layouts
 import JASP
 import JASP.Controls
-import JASP.Widgets
-import JASP.Theme
+// import JASP.Widgets
+// import JASP.Theme
 // import "./regression"	as	Regression
 // import "./common"		as	Common
 
@@ -29,207 +28,7 @@ import JASP.Theme
 Form
 {
 
-	// Common.Variables { id:	"variableSelection" }
-
-	VariablesForm
-	{
-
-		AvailableVariablesList
-		{
-			name:	"allVariables"
-			title:	qsTr("Candidate Variables")
-		}
-		// AvailableVariablesList { name:	"allVariablesList" }
-		AssignedVariablesList
-		{
-			name:	"imputationVariables"
-			id:		impVars
-			title:	qsTr("Selected Variables")
-
-			rowComponentTitle:	qsTr("Imputation Method")
-			rowComponent:		DropDown
-			{
-				name:	"method"
-				values:	[
-					"pmm",
-					"logistic",
-					"polr",
-					"midastouch",
-					"sample",
-					"cart",
-					"rf",
-					"mean",
-					"norm",
-					"norm.nob",
-					"norm.boot",
-					"norm.predict",
-					"lasso.norm",
-					"lasso.select.norm",
-					"quadratic",
-					"ri",
-					"logreg",
-					"logreg.boot",
-					"lasso.logreg",
-					"lasso.select.logreg",
-					"polyreg",
-					"lda",
-					"2l.norm",
-					"2l.lmer",
-					"2l.pan",
-					"2l.bin",
-					"2lonly.mean",
-					"2lonly.norm",
-					"2lonly.pmm"
-				]
-				startValue:	{
-					switch(impVars.getVariableType(rowValue))
-					{
-						case 2:		return "polr";		break // ordinal
-						case 3:		return "logistic";	break // nominal
-						default:	return "pmm";		break // otherwise => scale
-					}
-					// if (variables.getVariableType(rowValue) == "nominal")		return "logreg"
-					// else if (variables.getVariableType(rowValue) == "ordinal")	return "polr"
-					// else														return "norm"
-				}
-			}
-		}
-
-	}
-
-	Group
-	{
-
-		title:	qsTr("Parameterization")
-
-		IntegerField
-		{
-			name:			"nImps"
-			defaultValue:	5
-			label:			qsTr("Number of Imputation")
-			min:			1
-		}
-
-		IntegerField
-		{
-			name:			"nIters"
-			defaultValue:	10
-			label:			qsTr("Number of Iterations")
-			min:			1
-		}
-
-		IntegerField
-		{
-			name:			"seed"
-			label:			qsTr("Random Number Seed")
-			defaultValue:	235711
-		}
-
-	}
-
-	Group
-	{
-		title:	qsTr("Predictor Matrix")
-
-		CheckBox
-		{
-			name:		"quickpred"
-			label:		qsTr("Use mice::quickpred()")
-			id:			quickpred
-			checked:	false
-		}
-
-		Group
-		{
-			visible:	quickpred.checked
-
-			DoubleField
-			{
-				name:			"quickpredMincor"
-				label:			qsTr("Minimum correlation threshold")
-				min:			0
-				max:			1
-				defaultValue:	0.1
-				inclusive:		1
-			}
-
-			DoubleField
-			{
-				name:			"quickpredMinpuc"
-				label:			qsTr("Minimum proportion of usable cases")
-				min:			0
-				max:			1
-				defaultValue:	0
-				inclusive:		1
-			}
-
-			DropDown
-			{
-				name: "quickpredMethod"
-				label: qsTr("Measure of association")
-				values: [
-					{ label: qsTr("Pearson's R"),		value: "pearson"},
-					{ label: qsTr("Kendall's Tau"),		value: "kendall"},
-					{ label: qsTr("Spearman's Rho"),	value: "spearman"}
-				]
-				startValue: "pearson"
-			}
-
-			VariablesForm
-			{
-				AvailableVariablesList	{ name:	"possiblePredictors";	label:	qsTr("Possible Predictor Variables")	}
-				AssignedVariablesList	{ name:	"quickpredIncludes";	label:	qsTr("Included Variables")				}
-				AssignedVariablesList	{ name:	"quickpredExcludes";	label:	qsTr("Excluded Variables")				}
-			}
-
-		}
-
-
-	}
-
-	DropDown
-	{
-		name: "visitSequence"
-
-		label: qsTr("Visit Sequence")
-		values: [
-			{ label: qsTr("Top to Bottom"),		value: "roman"		},
-			{ label: qsTr("Bottom to Top"),		value: "arabic"		},
-			{ label: qsTr("Monotone"),			value: "monotone"	},
-			{ label: qsTr("Reverse Monotone"),	value: "revmonotone"}
-		]
-	}
-
-	Group
-	{
-
-		title:	qsTr("Convergence")
-
-		CheckBox
-		{
-			name:		"tracePlot"
-			label:		qsTr("Trace Plots")
-			id:			tracePlot
-			checked:	false
-		}
-
-		CheckBox
-		{
-			name:		"densityPlot"
-			label:		qsTr("Density Plots")
-			id:			densityPlot
-			checked:	false
-		}
-
-		CheckBox
-		{
-			name:		"rHats"
-			label:		qsTr("Potential Scale Reduction Factor")
-			id:			rHats
-			checked:	false
-		}
-
-	}
+	HeadlessImputation {}
 
 	Group
 	{
@@ -250,78 +49,6 @@ Form
 			label:		qsTr("Logistic Regression")
 			id:			runLogisticRegression
 			checked:	false
-		}
-
-	}
-
-	Group
-  {
-
-    title: qsTr('Logged events')
-
-    IntegerField
-    {
-      name: "maxLoggedEvents"
-      label: qsTr("Maximum number of events to display")
-      min: 1
-      max: 1000
-      defaultValue: 10
-      enabled: !printAllLoggedEvents
-    }
-
-    CheckBox
-    {
-      name: "printAllLoggedEvents"
-      label: qsTr("Show all logged events")
-    }
-
-  }
-
-	Section
-	{
-
-		id:		passiveImp
-		title:	qsTr("Passive imputation")
-
-		TextArea
-		{
-			id:					passiveImputation
-			name:				"passiveImputation"
-			textType:			JASP.PassiveImputation
-			showLineNumber:		true
-			placeholderText:	"Passive imputation models can be specified as:\na=b+(2*c)^2"
-		}
-
-	}
-
-	Section
-	{
-
-		id:		predictorSpec
-		title:	qsTr("Imputation model specification")
-
-		DropDown
-		{
-			id:		changePredOption
-			name:	"changePredOption"
-			label:	qsTr("Change imputation predictors")
-			values:	[
-				{ label: qsTr("Fully flexible specification"),	value: "flex" }
-			]
-		}
-
-		TextArea {
-			id:					changeNullModel
-			name:				"changeNullModel"
-			placeholderText:	qsTr("Add terms to an intercept-only model.")
-			visible:			changePredOption.currentValue === "flex"
-		}
-
-		TextArea {
-			id:					changeFullModel
-			name:				"changeFullModel"
-			placeholderText:	qsTr("Add terms to a full model (containing all main-effects).")
-			visible:			changePredOption.currentValue === "flex"
 		}
 
 	}
@@ -395,6 +122,7 @@ Form
 			}
 
 			CheckBox { name: "interceptTerm"; label: qsTr("Include intercept"); checked: true }
+			CheckBox { name: "quadraticTerms"; label: qsTr("Include quadratic terms"); info: qsTr("Include quadratic terms for the covariates in each model.") }
 		}
 
 		Section

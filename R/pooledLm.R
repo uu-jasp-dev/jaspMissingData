@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Utrecht University
+# Copyright (C) 2026 Utrecht University
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ pooledLmObject <- function(fits,
     fFun            <- switch(fType, mice::D1, mice::D2, mice::D3)
     pooled$f        <- fFun(fits)
     obj$df.residual <- as.numeric(pooled$f$result)[3]
-  } else if (obj$rank == 1) { # We're pooling an intercpet-only model
+  } else if (obj$rank == 1) { # We're pooling an intercept-only model
     pooled$f        <- NULL
     obj$df.residual <- pooled$coef$pooled$df
   } else {
@@ -199,7 +199,7 @@ summary.pooledlm <- function(object, ...) {
   ## Generate a summary table from the pooled fits
   pooledCoefSum <- summary(object$pooled$coef)
 
-  ## The coefficients table needs to formatting
+  ## The coefficients table needs formatting
   coefTab <- with(pooledCoefSum,
     cbind("Estimate" = estimate, "Std. Error" = std.error, "t value" = statistic, "Pr(>|t|)" = p.value)
   )
@@ -252,6 +252,13 @@ fitted.pooledlm <- function(object, ...) object$fitted.values
 
 ###------------------------------------------------------------------------------------------------------------------###
 
+# .linregGetParameterNames.pooledlm <- function(model) {
+#   return(names(coef(model)))
+# }
+
+# environment(.linregGetParameterNames.pooledlm) <- asNamespace('jaspRegression')
+
+###------------------------------------------------------------------------------------------------------------------###
 
 # library(mice)
 # library(miceadds)
