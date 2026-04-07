@@ -67,18 +67,23 @@
 
 ###------------------------------------------------------------------------------------------------------------------###
 
-.runRegression <- function(jaspResults, miceMids, options, ready) {
+.runRegression <- function(jaspResults, miceMids, options, ready, lmFunction) {
 
   # .lmFunction <- jaspMissingData::pooledLm
-  .lmFunction <- .linregSetFittingFunction(options)
+  # .linregSetLmFunction(pooledLm)
   impData <- miceMids$object |> mice::complete("all") # For some reason, with.mids won't parse the formula correctly. Seems related to the bug I patched in ggmice.
 
   # saveRDS(impData, "~/software/jasp/modules/imputation/data/impList.rds")
   # saveRDS(options$factors, "~/software/jasp/modules/imputation/data/factors.rds")
-  # saveRDS(options$covariates, "~/software/jasp/modules/imputation/data/covariates.rds")
+  saveRDS(options, "~/data/software/jasp/modules/missing_data/data/options.rds")
 
-  modelContainer <- .linregGetModelContainer(jaspResults, position = 1)
-  model          <- .linregCalcModel(modelContainer, impData, options, ready)
+  # weights <- .linregGetWeights(impData, options)
+  # print("These are the weights:")
+  # print(weights)
+  # saveRDS(weights, "~/data/software/jasp/modules/missing_data/data/weights.rds")
+
+  modelContainer <- .linregGetModelContainer(jaspResults, position = 2)
+  model          <- .linregCalcModel(modelContainer, impData, options, ready, lmFunction)
 
   if (is.null(modelContainer[["summaryTable"]]))
     .linregCreateSummaryTable(modelContainer, model, options, position = 1)

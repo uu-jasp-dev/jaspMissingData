@@ -74,15 +74,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
       .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
 
     if (options$runLinearRegression && .readyForLinReg(options, jaspResults[["MiceMids"]])) {
-      jaspRegression:::.linregSetFittingFunction(options)
-      .runRegression(jaspResults, jaspResults[["MiceMids"]], options, ready = TRUE)
+      .runRegression(jaspResults, jaspResults[["MiceMids"]], options, ready = TRUE, lmFunction = pooledLm)
     }
   }
 
   return()
 }
-
-
 
 ###-Init Functions---------------------------------------------------------------------------------------------------###
 
@@ -91,7 +88,6 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   # Calculate any options common to multiple parts of the analysis
   options$imputedVariables <- ""
   options$fType <- 1
-  options$lmFunction <- pooledLm
 
   tmp <- options$imputationVariables
   if (interactive()) {
@@ -162,7 +158,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   method
 }
 
-### Passive imputation ----------------------------------------------------------------------------------------------###
+###-Passive imputation-----------------------------------------------------------------------------------------------###
 
 .parseCharacterFormula <- function(x, encoded, decoded) {
   for (i in seq_along(decoded)) {
@@ -206,7 +202,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   list(meth = methodVector, pred = predictorMatrix)
 }
 
-### Text-specified imputation models ---------------------------------------------------------------------------------###
+###-Text-specified imputation models---------------------------------------------------------------------------------###
 
 .processImpModel <- function(dataset, options, predictorMatrix) {
 
@@ -339,7 +335,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   }
 
   if (!inherits(miceOut, "try-error")) {
-    miceMids$object          <- miceOut
+    miceMids$object <- miceOut
   } else {
     stop(
       "The mice() function crashed when attempting to impute the missing data.\n",

@@ -61,15 +61,25 @@ pooledLm <- function(formula, data, weights, fType = 1, ...) {
   # saveRDS(formula, "~/software/jasp/modules/imputation/data/formula2.rds")
   # saveRDS(data, "~/software/jasp/modules/imputation/data/impList2.rds")
 
-  if (mice::is.mids(data))
-    fits <- with(data, stats::lm(formula = as.formula(formula), weights = weights, ...))
-    # fits <- with(data, stats::lm(formula = as.formula(form), weights = weights, ...))
-  else if (is.list(data) && !is.data.frame(data))
-    fits <- lapply(data, function(datM) stats::lm(formula = formula, data = datM, weights = weights, ...))
-  else
-    stop("The 'data' argument must be a 'mids' object or a list of data.frames containing separate imputed datsets.")
+  # if (mice::is.mids(data))
+  #   fits <- with(data, stats::lm(formula = as.formula(formula), weights = weights, ...))
+  # else if (is.list(data) && !is.data.frame(data))
+  fits <- lapply(
+    data,
+    function(datM) stats::lm(formula = formula, data = datM, ...)
+  )
+  # else
+  # stop("The 'data' argument must be a 'mids' object or a list of data.frames containing separate imputed datsets.")
 
   # browser() ############################################################################################################
+
+  # fits <- list()
+  # for (m in 1:length(data)) {
+    # dM <- data[[m]]
+    # wM <- weights[[m]]
+    # fits[[m]] <- stats::lm(formula = formula, data = dM, weights = wM, ...)
+  #   fits[[m]] <- stats::lm(formula = formula, data = data[[m]])
+  # }
 
   pooledLmObject(fits, fType, ...)
 }
