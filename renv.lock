@@ -5193,11 +5193,11 @@
     },
     "jaspDescriptives": {
       "Package": "jaspDescriptives",
-      "Version": "0.96.0",
+      "Version": "0.96.1",
       "Source": "GitHub",
       "Type": "Package",
       "Title": "Descriptives Module for JASP",
-      "Date": "2022-09-12",
+      "Date": "2026-04-07",
       "Author": "JASP Team",
       "Website": "jasp-stats.org",
       "Maintainer": "JASP Team <info@jasp-stats.org>",
@@ -5224,12 +5224,12 @@
       ],
       "RoxygenNote": "7.3.3",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
+      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, dustinfife/flexplot",
       "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspDescriptives",
       "RemoteRef": "master",
-      "RemoteSha": "0629e7795b06c88524d7b557681672715cb5d931",
-      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, dustinfife/flexplot"
+      "RemoteSha": "38a8edb7cdb9f6c4754c5224fa83524130f7a15f",
+      "RemoteHost": "api.github.com"
     },
     "jaspGraphs": {
       "Package": "jaspGraphs",
@@ -5271,11 +5271,11 @@
     },
     "jaspRegression": {
       "Package": "jaspRegression",
-      "Version": "0.95.5-9999",
+      "Version": "0.9999",
       "Source": "GitHub",
       "Type": "Package",
       "Title": "Regression Module for JASP",
-      "Date": "2022-10-05",
+      "Date": "2026-04-07",
       "Author": "JASP Team",
       "Website": "jasp-stats.org",
       "Maintainer": "JASP Team <info@jasp-stats.org>",
@@ -5314,7 +5314,7 @@
       "RemoteUsername": "kylelang",
       "RemoteRepo": "jaspRegression",
       "RemoteRef": "missingData",
-      "RemoteSha": "85b6fd495a61aa0663b26560535ecdd4106b42bb",
+      "RemoteSha": "2670c732e41afac3ec515a39ea892dc5b25238d8",
       "RemoteHost": "api.github.com"
     },
     "jaspTTests": {

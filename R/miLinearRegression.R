@@ -75,14 +75,14 @@
 
   # saveRDS(impData, "~/software/jasp/modules/imputation/data/impList.rds")
   # saveRDS(options$factors, "~/software/jasp/modules/imputation/data/factors.rds")
-  saveRDS(options, "~/data/software/jasp/modules/missing_data/data/options.rds")
+  # saveRDS(options, "~/data/software/jasp/modules/missing_data/data/options.rds")
 
   # weights <- .linregGetWeights(impData, options)
   # print("These are the weights:")
   # print(weights)
   # saveRDS(weights, "~/data/software/jasp/modules/missing_data/data/weights.rds")
 
-  modelContainer <- .linregGetModelContainer(jaspResults, position = 2)
+  modelContainer <- .linregGetModelContainer(jaspResults, position = 1)
   model          <- .linregCalcModel(modelContainer, impData, options, ready, lmFunction)
 
   if (is.null(modelContainer[["summaryTable"]]))
