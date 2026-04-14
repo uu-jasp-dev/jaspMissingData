@@ -4834,7 +4834,7 @@
     },
     "insight": {
       "Package": "insight",
-      "Version": "1.4.6",
+      "Version": "1.5.0",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Easy Access to Model Information for Various Model Objects",
@@ -4956,6 +4956,7 @@
         "quantreg",
         "Rcpp",
         "RcppEigen",
+        "reformulas",
         "recipes",
         "rmarkdown",
         "rms",
@@ -4964,6 +4965,7 @@
         "rpart",
         "rstanarm (>= 2.21.1)",
         "rstantools (>= 2.1.0)",
+        "rstpm2",
         "rstudioapi",
         "RWiener",
         "sandwich",
@@ -5199,11 +5201,11 @@
       "RoxygenNote": "7.3.3",
       "RemoteType": "github",
       "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, dustinfife/flexplot",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspDescriptives",
       "RemoteRef": "master",
-      "RemoteSha": "2b5c895b3e1267fda58752a2debcc5e2f510ebd0"
+      "RemoteSha": "f7795679d7495b4caf9230922b42046197c40d93",
+      "RemoteHost": "api.github.com"
     },
     "jaspGraphs": {
       "Package": "jaspGraphs",
@@ -5320,12 +5322,12 @@
       ],
       "RoxygenNote": "7.3.2",
       "RemoteType": "github",
+      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspTTests",
       "RemoteRef": "master",
-      "RemoteSha": "c1ae6873ecde02e12ba797cb85fce7ddda757435",
-      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs"
+      "RemoteSha": "c109eeb10d90842a77c6b8f49b8b813be61d909b"
     },
     "jaspTools": {
       "Package": "jaspTools",

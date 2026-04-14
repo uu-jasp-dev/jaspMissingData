@@ -48,13 +48,26 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     "quickpredExcludes",
     "seed"
   )
+  regressionDependencies <- c(
+    "dependent",
+    "method",
+    "covariates",
+    "factors",
+    "weights",
+    "modelTerms",
+    "steppingMethodCriteriaType",
+    "steppingMethodCriteriaPEntry",
+    "steppingMethodCriteriaPRemoval",
+    "steppingMethodCriteriaFEntry",
+    "steppingMethodCriteriaFRemoval",
+    "interceptTerm",
+    "quadraticTerms",
+    "fType"
+  )
 
   if (.readyForMi(options)) {
 
     errors <- .errorHandling(dataset, options)
-
-    # Output containers, tables, and plots based on the results. These functions should not return anything!
-    # .createImputationContainer(jaspResults, options)
 
     .initMiceMids(jaspResults, imputationDependencies)
 
@@ -66,7 +79,6 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
     ## Initialize containers to hold the convergence plots and analysis results:
     .initConvergencePlots(jaspResults, imputationDependencies)
-    .initAnalysisContainer(jaspResults, imputationDependencies)
 
     if (options$tracePlot && is.null(jaspResults[["ConvergencePlots"]][["TracePlot"]]))
       .createTracePlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
@@ -75,7 +87,8 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
     if (options$runLinearRegression && .readyForLinReg(options, jaspResults[["MiceMids"]])) {
       pooledLm <- makePooledLm(pool = TRUE, type = options$fType)
-      .runRegression(jaspResults, jaspResults[["MiceMids"]], options, ready = TRUE, lmFunction = pooledLm)
+      .initModelContainer(jaspResults, c(imputationDependencies, regressionDependencies))
+      .runRegression(jaspResults, options, ready = TRUE, lmFunction = pooledLm)
     }
   }
 
@@ -129,14 +142,13 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 ###------------------------------------------------------------------------------------------------------------------###
 
-.initAnalysisContainer <- function(jaspResults, imputationDependencies) {
-  if(!is.null(jaspResults[["AnalysisContainer"]])) return()
+.initModelContainer <- function(jaspResults, dependencies) {
+  if(!is.null(jaspResults[["ModelContainer"]])) return()
 
-  analysisContainer <- createJaspContainer(title = "Analyses")
-  analysisContainer$dependOn(options = c(imputationDependencies) # TODO: add regression qml options here
-  )
+  modelContainer <- createJaspContainer()
+  modelContainer$dependOn(options = dependencies)
 
-  jaspResults[["AnalysisContainer"]] <- analysisContainer
+  jaspResults[["ModelContainer"]] <- modelContainer
 }
 
 ###------------------------------------------------------------------------------------------------------------------###
