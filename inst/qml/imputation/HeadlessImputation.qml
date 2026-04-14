@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013-2022 University of Amsterdam
+// Copyright (C) 2026 Utrecht University
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as
@@ -17,18 +17,17 @@
 //
 
 import QtQuick
+import JASP
+import JASP.Controls
 
-Item
+// All Analysis forms must be built with the Form QML item
+// This headless file is meant to be included as a QML component elsewhere
+Group
 {
-	enum Framework
-	{
-		Classical,
-		Bayesian
-	}
-
-	enum Analysis
-	{
-		LinearRegression,
-		GLM
-	}
+	Variables {}
+	Parameterization {}
+	PredictorMatrix {}
+	ModelSpec {}
+	PassiveImputation {}
+	Diagnostics {}
 }

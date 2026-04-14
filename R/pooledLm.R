@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Utrecht University
+# Copyright (C) 2026 Utrecht University
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,61 +17,23 @@
 
 ###------------------------------------------------------------------------------------------------------------------###
 
-# miFits <- readRDS("../data/miFits.rds")
-
-# meta <- miFits$meta
-# fits <- miFits$fits
-
-# fits0 <- fits[[1]]
-# fits1 <- fits[[2]]
-
-# f0 <- fits0[[1]]
-# s0 <- summary(f0)
-
-# f1 <- fits1[[1]]
-# s1 <- summary(f1)
-
-# f0$rank
-
-# ls(f0)
-# ls(f1)
-
-# ls(s0)
-# ls(s1)
-
-# s0$r.squared
-# s0$adj.r.rsquared
-
-# f0$effects
-
-# getwd()
-
-# f0$terms
-# f0$rank
-# f0$model
-
-# fits <- fits1
-# fType <- 3
-
-###------------------------------------------------------------------------------------------------------------------###
-
 #' @export
-pooledLm <- function(formula, data, weights, fType = 1, ...) {
+makePooledLm <- function(pool, type) {
+  function(formula, data, weights, ...) {
 
-  # saveRDS(formula, "~/software/jasp/modules/imputation/data/formula2.rds")
-  # saveRDS(data, "~/software/jasp/modules/imputation/data/impList2.rds")
+    ## TIL that formula objects are closures that capture the environment in which they are created. So, we need to create
+    ## the formula object in an environment containing 'weights', otherwise lm() won't find 'weights'.
+    form <- as.formula(formula)
+    environment(form) <- environment()
 
-  if (mice::is.mids(data))
-    fits <- with(data, stats::lm(formula = as.formula(formula), weights = weights, ...))
-    # fits <- with(data, stats::lm(formula = as.formula(form), weights = weights, ...))
-  else if (is.list(data) && !is.data.frame(data))
-    fits <- lapply(data, function(datM) stats::lm(formula = formula, data = datM, weights = weights, ...))
-  else
-    stop("The 'data' argument must be a 'mids' object or a list of data.frames containing separate imputed datsets.")
+    fits <- vector("list", length(data))
+    for(m in 1:length(data))
+      fits[[m]] <- lm(form, data = data[[m]], weights = weights[[m]], ...)
 
-  # browser() ############################################################################################################
+    if(!pool) return(fits)
 
-  pooledLmObject(fits, fType, ...)
+    pooledLmObject(fits, fType = type)
+  }
 }
 
 ###------------------------------------------------------------------------------------------------------------------###
@@ -79,8 +41,8 @@ pooledLm <- function(formula, data, weights, fType = 1, ...) {
 #' @export
 pooledLmObject <- function(fits,
                            fType = 1,
-                           include = list(model = FALSE, qr = FALSE, x = FALSE),
-                           ...)
+                           include = list(model = FALSE, qr = FALSE, x = FALSE)
+                           )
 {
   fits <- .checkInputs(fits, fType)
 
@@ -113,10 +75,10 @@ pooledLmObject <- function(fits,
   pooled$r2A  <- mice::pool.r.squared(fits, adjusted = TRUE)
 
   if (obj$rank > 1) { # We can only compute pooled F when we have some predictors
-    fFun            <- switch(fType, mice::D1, mice::D2, mice::D3)
+    fFun            <- switch(fType, d1 = mice::D1, d2 = mice::D2, d3 = mice::D3)
     pooled$f        <- fFun(fits)
     obj$df.residual <- as.numeric(pooled$f$result)[3]
-  } else if (obj$rank == 1) { # We're pooling an intercpet-only model
+  } else if (obj$rank == 1) { # We're pooling an intercept-only model
     pooled$f        <- NULL
     obj$df.residual <- pooled$coef$pooled$df
   } else {
@@ -145,9 +107,6 @@ pooledLmObject <- function(fits,
   obj
 }
 
-# mice::pool.r.squared(mice::as.mira(fits0))
-# mice::pool.r.squared(mice::as.mira(fits0), adjusted = TRUE)
-
 ###------------------------------------------------------------------------------------------------------------------###
 
 .checkInputs <- function(fits, fType) {
@@ -162,7 +121,7 @@ pooledLmObject <- function(fits,
     fits <- mice::as.mira(fits)
   }
 
-  if (!fType %in% 1:3) stop("The 'fType' argument must be 1, 2, or 3.")
+  if (!fType %in% paste0("d", 1:3)) stop("The 'fType' argument must be 'd1', 'd2', or 'd3'.")
 
   ranks <- sapply(fits$analyses, "[[", x = "rank")
   if (any(ranks <= 0)) stop("I don't know how to pool models with rank(X) < 1.")
@@ -199,7 +158,7 @@ summary.pooledlm <- function(object, ...) {
   ## Generate a summary table from the pooled fits
   pooledCoefSum <- summary(object$pooled$coef)
 
-  ## The coefficients table needs to formatting
+  ## The coefficients table needs formatting
   coefTab <- with(pooledCoefSum,
     cbind("Estimate" = estimate, "Std. Error" = std.error, "t value" = statistic, "Pr(>|t|)" = p.value)
   )
@@ -251,157 +210,3 @@ fitted.pooledlm <- function(object, ...) object$fitted.values
 }
 
 ###------------------------------------------------------------------------------------------------------------------###
-
-
-# library(mice)
-# library(miceadds)
-# library(mitools)
-
-# miceOut <- mice::mice(mice::boys)
-# impData <- mice::complete(miceOut, "all")
-
-# undebug("pooledLm")
-
-# test <- pooledLm("hgt ~ wgt + hc + reg", miceOut, weights = NULL, fType = 1, x = TRUE)
-
-# coef(test)
-# stats::coefficients(test)
-
-# stats::df.residual(test)
-# test$df.residual
-
-# fit0 <- lm("hgt ~ wgt + hc + reg", data = mice::boys)
-
-# model.matrix(fit0) |> colnames()
-# coef(fit0) |> names()
-
-# summary(test) |> print()
-
-# all.vars(formula(test))
-# all.vars()
-
-# x
-# test <- pooledLm("hgt ~ wgt + hc + reg", impData, fType = 1)
-
-# form <- "hgt ~ wgt + hc + reg"
-# dat1 <- impData[[1]]
-
-# .lmFunction(form, dat1) |> summary()
-# .lmFunction(form, impData, FUN = pooledLm, fType = 2) |> summary() |> print()
-
-# x
-
-# test |> summary()
-# test |> summary() |> print()
-
-# sapply(fits$analyses, vcov)
-
-# x
-# fits <- with(miceOut, lm(hgt ~ wgt + hc + reg))
-
-# test <- pooledLmObject(fits)
-# sTest <- summary(test)
-
-# summary(test)
-# sTest
-
-# vcov(test)
-# coef(test)
-
-# cTest <- sTest$cov.unscaled
-
-# v2 <- cTest * sTest$sigma^2
-
-# v2 - vcov(test)
-
-# f1 <- fits$analyses[[1]]
-# s1 <- summary(f1)
-
-# s1
-
-# v1 <- vcov(s1)
-
-# c1 <- v1 / s1$sigma^2
-# c2 <- s1$cov.unscaled
-
-# c1 - c2
-
-# ls(s1)
-
-# ls(f1)
-
-
-# p1 <- mice::pool(fits)
-# p2 <- MIcombine(fits$analyses)
-
-# p1
-# p2
-
-# coef(p2)
-# vcov(p2)
-
-# class(p2)
-# mitools:::vcov.MIresult
-
-# fits <- fits$analyses
-
-# coefNames <- fits[[1]] |> coef() |> names()
-
-
-# template <- w
-# template
-# covs
-
-
-# v1 <- pooledAsymptoticCov(fits)
-# v2 <- MIcombine(fits) |> vcov()
-
-# v1 - v2
-
-# sapply(fits$analyses, coef) |> t() |> var()
-# lapply(fits$analyses, coef) |> do.call(rbind, args = _) |> var()
-
-# fits$analyses[[1]] |> ls()
-
-# fits$analyses[[1]][["rank"]]
-
-
-# ?MIcombine
-# x
-# test <- pooledLmObject(fits)
-
-# fits
-
-# test
-
-# coef(test)
-# resid(test)
-# fitted(test)
-
-# test$pooled$coef |> summary()
-# test$pooled$f
-# ls(test)
-# ls(testSum)
-
-# test$rank
-
-# testSum$df
-# testSum <- summary(test)
-# testSum
-# testSum$fstatistic
-
-# class(lmSum)
-# class(testSum)
-
-# testSum
-
-# coef(test)
-# resid(test)
-
-# print(sum)
-
-# print.summary.lm(sum)
-
-# class(test)
-
-# summary(test)

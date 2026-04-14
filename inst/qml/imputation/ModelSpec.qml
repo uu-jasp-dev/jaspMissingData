@@ -19,38 +19,37 @@
 import QtQuick
 import JASP
 import JASP.Controls
-import "./regression"	as	Regression
-import "./imputation"	as	Imputation
 
 // All Analysis forms must be built with the Form QML item
-Form
+// This headless file is meant to be included as a QML component elsewhere
+Section
 {
 
-	Imputation.HeadlessImputation {}
+	id:		predictorSpec
+	title:	qsTr("Imputation model specification")
 
-	Group
+	DropDown
 	{
-
-		title:	qsTr("Analyses")
-
-		CheckBox
-		{
-			name:		"runLinearRegression"
-			label:		qsTr("Linear Regression")
-			id:			runLinearRegression
-			checked:	false
-		}
-
-		CheckBox
-		{
-			name:		"runLogisticRegression"
-			label:		qsTr("Logistic Regression")
-			id:			runLogisticRegression
-			checked:	false
-		}
-
+		id:		changePredOption
+		name:	"changePredOption"
+		label:	qsTr("Change imputation predictors")
+		values:	[
+			{ label: qsTr("Fully flexible specification"),	value: "flex" }
+		]
 	}
 
-	Regression.RegressionLinear {}
+	TextArea {
+		id:					changeNullModel
+		name:				"changeNullModel"
+		placeholderText:	qsTr("Add terms to an intercept-only model.")
+		visible:			changePredOption.currentValue === "flex"
+	}
+
+	TextArea {
+		id:					changeFullModel
+		name:				"changeFullModel"
+		placeholderText:	qsTr("Add terms to a full model (containing all main-effects).")
+		visible:			changePredOption.currentValue === "flex"
+	}
 
 }

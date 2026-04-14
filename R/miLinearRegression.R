@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Utrecht University
+# Copyright (C) 2026 Utrecht University
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,83 +17,22 @@
 
 ###------------------------------------------------------------------------------------------------------------------###
 
-# .estimateRegressionModels <- function(miceMids, options) {
-#   ready <- inherits(miceMids$object, "mids") && # We can't do an analysis before imputing
-#     options$dependent != "" &&
-#     (length(unlist(options$modelTerms)) > 0 || options$interceptTerm)
+.runRegression <- function(jaspResults, options, ready, lmFunction) {
 
-#   # browser() ############################################################################################################
+  impData <- jaspResults[["MiceMids"]]$object |> mice::complete("all")
 
-#   dummyContainer <- createJaspContainer()
-#   outData <- list()
-#   models <- list()
-#   for (m in 1:options$nImp) {
-#     dataset <- outData[[m]] <- miceMids$object |> complete(m) 
-#     model   <- createJaspContainer() |> .linregCalcModel(dataset, options, ready)
-
-#     models[[m]] <- model
-
-#     if (m == 1) {
-#       meta <- lapply(model, "[", x = c("predictors", "number", "title"))
-#       fits <- vector("list", length(model))
-#     }
-
-#     for (i in seq_along(model)) fits[[i]][[m]] <- model[[i]]$fit
-#     
-#   }
-
-#   saveRDS(outData, "/home/kylelang/software/jasp/modules/imputation/data/outData.rds")
-#   saveRDS(models, "/home/kylelang/software/jasp/modules/imputation/data/models.rds")
-
-#   list(meta = meta, fits = fits)
-# }
-
-###------------------------------------------------------------------------------------------------------------------###
-
-# .poolRegressionEstimates <- function(jaspResults, miFits, options, offset) {
-
-#   # browser() ############################################################################################################
-
-#   modelContainer <- .linregGetModelContainer(jaspResults, position = offset + 1)
-
-#   models <- miFits$meta
-#   for (i in seq_along(miFits$fits)) {
-#     pooledFit <- pooledLmObject(miFits$fits[[i]], fType = options$fType)
-#     models[[i]]$fit <- pooledFit
-#   }
-
-#   modelContainer[["models"]] <- models
-# }
-
-###------------------------------------------------------------------------------------------------------------------###
-
-.runRegression <- function(jaspResults, miceMids, options) {
-
-  # ready <- inherits(miceMids$object, "mids") && # We can't do an analysis before imputing
-  #   options$dependent != "" &&
-  #   (length(unlist(options$modelTerms)) > 0 || options$interceptTerm)
-
-  ready <- .readyForLinReg(options, miceMids)
-
-  # browser() ############################################################################################################
-
-  impData <- miceMids$object |> mice::complete("all") # For some reason, with.mids won't parse the formula correctly. Seems related to the bug I patched in ggmice.
-
-  # saveRDS(impData, "~/software/jasp/modules/imputation/data/impList.rds")
-  # saveRDS(options$factors, "~/software/jasp/modules/imputation/data/factors.rds")
-  # saveRDS(options$covariates, "~/software/jasp/modules/imputation/data/covariates.rds")
-
-  modelContainer <- .linregGetModelContainer(jaspResults, position = 1)
-  model          <- .linregCalcModel(modelContainer, impData, options, ready)
+  # modelContainer <- .linregGetModelContainer(jaspResults, position = 1)
+  modelContainer <- jaspResults[["ModelContainer"]]
+  model          <- .linregCalcModel(modelContainer, impData, options, ready, lmFunction)
 
   if (is.null(modelContainer[["summaryTable"]]))
-    jaspRegression:::.linregCreateSummaryTable(modelContainer, model, options, position = 1)
+    .linregCreateSummaryTable(modelContainer, model, options, position = 1)
 
   # TODO (KML): Check the R2, F, AIC/BIC stuff and put MI appropriate versions in
   # TODO (KML): Add footnotes about pooling
-
+ 
   if (options$modelFit && is.null(modelContainer[["anovaTable"]]))
-    jaspRegression:::.linregCreateAnovaTable(modelContainer, model, options, position = 2)
+    .linregCreateAnovaTable(modelContainer, model, options, position = 2)
 
   # TODO (KML): Check the ANOVA stats.
   #             - Are they correct for MI data
@@ -116,5 +55,8 @@
   # if (options$collinearityDiagnostic && is.null(modelContainer[["collinearityTable"]]))
   #   jaspRegression:::.linregCreateCollinearityDiagnosticsTable(modelContainer, model, options, position = 8)
 }
+
+## Execute .runRegression() within the 'jaspRegression' namespace:
+environment(.runRegression) <- asNamespace('jaspRegression')
 
 ###------------------------------------------------------------------------------------------------------------------###

@@ -22,7 +22,7 @@ Suggests:
 Remotes:
   jasp-stats/jaspBase,
   jasp-stats/jaspGraphs,
-  jasp-stats/jaspRegression,
+  kylelang/jaspRegression@missingData,
   jasp-stats/jaspTools
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
