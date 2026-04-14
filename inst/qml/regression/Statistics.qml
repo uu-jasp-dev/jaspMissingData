@@ -93,9 +93,9 @@ Section
 			name: "fType"
 			label: qsTr("Pooling Rule for F-Statistic")
 			values: [
-				{ label: qsTr("D1"),	value: "1"},
-				{ label: qsTr("D2"),	value: "2"},
-				{ label: qsTr("D3"),	value: "3"}
+				{ label: qsTr("D1"),	value: "d1"},
+				{ label: qsTr("D2"),	value: "d2"},
+				{ label: qsTr("D3"),	value: "d3"}
 			]
 			startValue: "1"
 		}

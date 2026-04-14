@@ -75,7 +75,7 @@ pooledLmObject <- function(fits,
   pooled$r2A  <- mice::pool.r.squared(fits, adjusted = TRUE)
 
   if (obj$rank > 1) { # We can only compute pooled F when we have some predictors
-    fFun            <- switch(fType, mice::D1, mice::D2, mice::D3)
+    fFun            <- switch(fType, d1 = mice::D1, d2 = mice::D2, d3 = mice::D3)
     pooled$f        <- fFun(fits)
     obj$df.residual <- as.numeric(pooled$f$result)[3]
   } else if (obj$rank == 1) { # We're pooling an intercept-only model
@@ -121,7 +121,7 @@ pooledLmObject <- function(fits,
     fits <- mice::as.mira(fits)
   }
 
-  if (!fType %in% 1:3) stop("The 'fType' argument must be 1, 2, or 3.")
+  if (!fType %in% paste0("d", 1:3)) stop("The 'fType' argument must be 'd1', 'd2', or 'd3'.")
 
   ranks <- sapply(fits$analyses, "[[", x = "rank")
   if (any(ranks <= 0)) stop("I don't know how to pool models with rank(X) < 1.")

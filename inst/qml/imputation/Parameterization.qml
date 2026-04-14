@@ -19,38 +19,50 @@
 import QtQuick
 import JASP
 import JASP.Controls
-import "./regression"	as	Regression
-import "./imputation"	as	Imputation
 
 // All Analysis forms must be built with the Form QML item
-Form
+// This headless file is meant to be included as a QML component elsewhere
+Group
 {
 
-	Imputation.HeadlessImputation {}
+	title:		qsTr("Parameterization")
+	columns:	2
 
-	Group
+	IntegerField
 	{
-
-		title:	qsTr("Analyses")
-
-		CheckBox
-		{
-			name:		"runLinearRegression"
-			label:		qsTr("Linear Regression")
-			id:			runLinearRegression
-			checked:	false
-		}
-
-		CheckBox
-		{
-			name:		"runLogisticRegression"
-			label:		qsTr("Logistic Regression")
-			id:			runLogisticRegression
-			checked:	false
-		}
-
+		name:			"nImps"
+		defaultValue:	5
+		label:			qsTr("Number of Imputation")
+		min:			1
 	}
 
-	Regression.RegressionLinear {}
+	DropDown
+	{
+		name: "visitSequence"
+
+		label: qsTr("Visit Sequence")
+		values: [
+			{ label: qsTr("Top to Bottom"),		value: "roman"		},
+			{ label: qsTr("Bottom to Top"),		value: "arabic"		},
+			{ label: qsTr("Monotone"),			value: "monotone"	},
+			{ label: qsTr("Reverse Monotone"),	value: "revmonotone"}
+		]
+	}
+
+	IntegerField
+	{
+		name:			"nIters"
+		defaultValue:	10
+		label:			qsTr("Number of Iterations")
+		min:			1
+	}
+
+	IntegerField
+	{
+		name:			"seed"
+		label:			qsTr("Random Number Seed")
+		fieldWidth:		60
+		defaultValue:	235711
+	}
 
 }

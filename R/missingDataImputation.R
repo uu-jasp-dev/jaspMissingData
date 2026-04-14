@@ -88,7 +88,6 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
   # Calculate any options common to multiple parts of the analysis
   options$imputedVariables <- ""
-  options$fType <- 1
 
   tmp <- options$imputationVariables
   if (interactive()) {

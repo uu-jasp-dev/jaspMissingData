@@ -19,38 +19,66 @@
 import QtQuick
 import JASP
 import JASP.Controls
-import "./regression"	as	Regression
-import "./imputation"	as	Imputation
 
 // All Analysis forms must be built with the Form QML item
-Form
+// This headless file is meant to be included as a QML component elsewhere
+Section
 {
 
-	Imputation.HeadlessImputation {}
+	title:		qsTr("Diagnostics")
+	columns:	2
 
 	Group
 	{
 
-		title:	qsTr("Analyses")
+		title:	qsTr("Convergence")
 
 		CheckBox
 		{
-			name:		"runLinearRegression"
-			label:		qsTr("Linear Regression")
-			id:			runLinearRegression
+			name:		"tracePlot"
+			label:		qsTr("Trace Plots")
+			id:			tracePlot
 			checked:	false
 		}
 
 		CheckBox
 		{
-			name:		"runLogisticRegression"
-			label:		qsTr("Logistic Regression")
-			id:			runLogisticRegression
+			name:		"densityPlot"
+			label:		qsTr("Density Plots")
+			id:			densityPlot
+			checked:	false
+		}
+
+		CheckBox
+		{
+			name:		"rHats"
+			label:		qsTr("Potential Scale Reduction Factor")
+			id:			rHats
 			checked:	false
 		}
 
 	}
 
-	Regression.RegressionLinear {}
+	Group
+	{
 
+		title:	qsTr('Logged events')
+
+		IntegerField
+		{
+			name:			"maxLoggedEvents"
+			label:			qsTr("Maximum number of events to display")
+			min:			1
+			max:			1000
+			defaultValue:	10
+			enabled:		!printAllLoggedEvents
+		}
+
+		CheckBox
+		{
+			name:	"printAllLoggedEvents"
+			label:	qsTr("Show all logged events")
+		}
+
+	}
 }

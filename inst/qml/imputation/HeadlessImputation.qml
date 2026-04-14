@@ -19,38 +19,15 @@
 import QtQuick
 import JASP
 import JASP.Controls
-import "./regression"	as	Regression
-import "./imputation"	as	Imputation
 
 // All Analysis forms must be built with the Form QML item
-Form
+// This headless file is meant to be included as a QML component elsewhere
+Group
 {
-
-	Imputation.HeadlessImputation {}
-
-	Group
-	{
-
-		title:	qsTr("Analyses")
-
-		CheckBox
-		{
-			name:		"runLinearRegression"
-			label:		qsTr("Linear Regression")
-			id:			runLinearRegression
-			checked:	false
-		}
-
-		CheckBox
-		{
-			name:		"runLogisticRegression"
-			label:		qsTr("Logistic Regression")
-			id:			runLogisticRegression
-			checked:	false
-		}
-
-	}
-
-	Regression.RegressionLinear {}
-
+	Variables {}
+	Parameterization {}
+	PredictorMatrix {}
+	ModelSpec {}
+	PassiveImputation {}
+	Diagnostics {}
 }
