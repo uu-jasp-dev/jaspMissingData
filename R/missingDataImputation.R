@@ -74,7 +74,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
       .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
 
     if (options$runLinearRegression && .readyForLinReg(options, jaspResults[["MiceMids"]])) {
-      pooledLm <- makePooledLm(options$fType)
+      pooledLm <- makePooledLm(pool = TRUE, type = options$fType)
       .runRegression(jaspResults, jaspResults[["MiceMids"]], options, ready = TRUE, lmFunction = pooledLm)
     }
   }

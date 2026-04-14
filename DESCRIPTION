@@ -24,5 +24,5 @@ Remotes:
   jasp-stats/jaspGraphs,
   kylelang/jaspRegression@missingData,
   jasp-stats/jaspTools
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Config/testthat/edition: 3
