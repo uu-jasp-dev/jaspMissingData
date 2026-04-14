@@ -49,14 +49,20 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     "seed"
   )
 
-  if (.readyForMi(options)) {
+  .initMiceMids(jaspResults, imputationDependencies)
+  if(is.null(jaspResults[["MiceMids"]]$object) & !.readyForMi(options)) {
+    # Regular imputation part takes precedence over loading imputation models
+    jaspResults[["MiceMids"]][["object"]] <- .loadImputedData(options)
+    imputed <- TRUE
+  }
+
+
+  if (.readyForMi(options) | !is.null(jaspResults[["MiceMids"]][["object"]])) {
 
     errors <- .errorHandling(dataset, options)
 
     # Output containers, tables, and plots based on the results. These functions should not return anything!
     # .createImputationContainer(jaspResults, options)
-
-    .initMiceMids(jaspResults, imputationDependencies)
 
     if(is.null(jaspResults[["MiceMids"]]$object)) {
       .imputeMissingData(jaspResults[["MiceMids"]], dataset[options$imputationTargets], options)
@@ -72,7 +78,9 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
       .createTracePlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
     if (options$densityPlot && is.null(jaspResults[["ConvergencePlots"]][["DensityPlots"]]))
       .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
-
+    
+    if (options$saveImps && options[["savePath"]] != "") 
+      .saveImputedData(jaspResults, dataset, options)
     if (options$runLinearRegression) {
       .lmFunction <<- .linregSetFittingFunction(options) # The deep assignment here is almost certainly a stupid idea
 
@@ -431,3 +439,27 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 }
 
 ###------------------------------------------------------------------------------------------------------------------###
+
+.saveImputedData <- function(jaspResults, dataset, options) {
+  imps <- jaspResults[["MiceMids"]]$object
+  class(imps) <- c(class(jaspResults[["MiceMids"]][["object"]]), "jaspImputation")
+  path <- options[["savePath"]]
+  if (!endsWith(path, ".jaspImp")) {
+    path <- paste0(path, ".jaspImp")
+  }
+  saveRDS(imps, file = path)
+}
+
+.loadImputedData <- function(options) {
+  if (options[["loadImpPath"]] != "") {
+    imps <- try({
+      readRDS(options[["loadImpPath"]])
+    })
+    if (!inherits(imps, "jaspImputation")) {
+      jaspBase:::.quitAnalysis(gettext("Error: The imputed data is not created in JASP."))
+    }
+  } else {
+    imps <- NULL
+  }
+  return(imps)
+}
