@@ -72,3 +72,4 @@ rsconnect/
 
 # Built tar-balls:
 builds/
+.positai

@@ -27,16 +27,17 @@ Section
 
 	id:		predictorSpec
 	title:	qsTr("Imputation model specification")
-	property alias enabled:			predictorSpec.enabled
+	// property alias enabled:			predictorSpec.enabled
 
-
-	TextArea {
+	TextArea
+	{
 		id:					changeNullModel
 		name:				"changeNullModel"
 		placeholderText:	qsTr("Add terms to an intercept-only model.")
 	}
 
-	TextArea {
+	TextArea
+	{
 		id:					changeFullModel
 		name:				"changeFullModel"
 		placeholderText:	qsTr("Add terms to a full model (containing all main-effects).")

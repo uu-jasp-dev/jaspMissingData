@@ -25,14 +25,38 @@ import JASP.Controls
 Group
 {
 	property alias impVars:	variables.impVars
-	property bool hasFile: importSection.loadImpPath !== "" && importSection.loadImpPath !== null
+	// property bool hasFile:	importSection.loadImpPath !== "" && importSection.loadImpPath !== null
 
-	ImportImputation { id: importSection }
-	Variables { id:	variables; visible: !hasFile }
-	Parameterization { visible: !hasFile }
-	PredictorMatrix { visible: !hasFile }
-	ExportImputation { enabled: impVars.count > 0; visible: !hasFile }
-	ModelSpec { visible: !hasFile }
-	PassiveImputation { visible: !hasFile}
+	DropDown
+	{
+		name:	"impDataSource"
+		id:		impDataSource
+		label:	qsTr("Source of Imputed Data")
+		info:	qsTr("You can generate new imputations or load a set of imputed data that you generated in a previous jaspMissingData session.")
+		values:	[
+			{ label: qsTr("Generate New Imputations"),	value: "createImpData"	},
+			{ label: qsTr("Load Imputed Datasets"),		value: "loadImpData"	}
+		]
+	}
+
+	ImportImputation { id: importSection; visible: impDataSource.value === "loadImpData" }
+
+	Group
+	{
+		visible: impDataSource.value === "createImpData"
+
+		Variables { id:	variables }
+		Parameterization {}
+		PredictorMatrix {}
+		ModelSpec {}
+		PassiveImputation {}
+	}
+
 	Diagnostics {}
+
+	ExportImputation
+	{
+		enabled:	impVars.count > 0;
+		visible:	impDataSource.value === "createImpData"
+	}
 }

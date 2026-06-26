@@ -21,21 +21,21 @@ import JASP.Controls
 
 Group
 {
-	property alias enabled:			exportSection.enabled
-	property alias showSave:		saveGroup.visible
+	property alias enabled:		exportSection.enabled
+	property alias showSave:	saveGroup.visible
 
-	id:								exportSection
-	title:							qsTr("Export Imputations")
+	id:		exportSection
+	title:	qsTr("Export Imputations")
 
 	Group
 	{
-		id:							saveGroup
+		id:	saveGroup
 
 		CheckBox
 		{
-			name:					"saveImps"
-			text:					qsTr("Save imputed data")
-			info:					qsTr("When clicked, the model is exported to the specified file path.")
+			name:	"saveImps"
+			text:	qsTr("Save imputed data")
+			info:	qsTr("When clicked, the model is exported to the specified file path.")
 
 			FileSelector
 			{

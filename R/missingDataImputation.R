@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2025 Utrecht University
+# Copyright (C) 2026 Utrecht University
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-### -Main Function----------------------------------------------------------------------------------------------------###
+### Main Function ------------------------------------------------------------------------------------------------------
 
 #' Multiply impute missing data with MICE
 #' @export
@@ -32,20 +32,18 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   options <- .processImputationOptions(options)
 
   .initMiceMids(jaspResults)
-  
-  if(is.null(jaspResults[["MiceMids"]]$object) & !.readyForMi(options)) {
+
+  if (is.null(jaspResults[["MiceMids"]]$object) & !.readyForMi(options)) {
     # Regular imputation part takes precedence over loading imputation models
     jaspResults[["MiceMids"]][["object"]] <- .loadImputedData(options)
   }
 
-
   if (.readyForMi(options) | !is.null(jaspResults[["MiceMids"]][["object"]])) {
-
     errors <- .errorHandling(dataset, options)
 
     .initMiceMids(jaspResults)
 
-    if(is.null(jaspResults[["MiceMids"]]$object)) {
+    if (is.null(jaspResults[["MiceMids"]]$object)) {
       .imputeMissingData(jaspResults[["MiceMids"]], dataset[options$imputationTargets], options)
     }
 
@@ -60,13 +58,15 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     if (options$densityPlot && is.null(jaspResults[["ConvergencePlots"]][["DensityPlots"]])) {
       .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
     }
-    
-    if (options$saveImps && options[["savePath"]] != "") 
-      .saveImputedData(jaspResults, dataset, options)
 
-    if (options$rHats)
+    if (options$saveImps && options[["savePath"]] != "") {
+      .saveImputedData(jaspResults, dataset, options)
+    }
+
+    if (options$rHats) {
       .createRHatsTable(jaspResults, options)
-    
+    }
+
     if (.readyForLinReg(options, jaspResults[["MiceMids"]])) {
       .checkRegressionValidVars(options, jaspResults)
       pooledLm <- makePooledLm(pool = TRUE, poolingParams = with(options, list(fStat = fStat, llEst = llEst)))
@@ -78,30 +78,25 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   return()
 }
 
-### -Init Functions---------------------------------------------------------------------------------------------------###
+### Init Functions -----------------------------------------------------------------------------------------------------
 
 .processImputationOptions <- function(options) {
-  # Calculate any options common to multiple parts of the analysis
   options$imputedVariables <- ""
 
-  tmp <- options$imputationVariables
-  if (interactive()) {
-    options$imputationTargets <- sapply(tmp$value, "[[", x = "variable")
-    options$imputationMethods <- sapply(tmp$value, "[[", x = "method")
-  } else {
-    options$imputationTargets <- sapply(tmp, "[[", x = "variable")
-    options$imputationMethods <- sapply(tmp, "[[", x = "method")
-  }
+  options$imputationTargets <- sapply(options$imputationVariables, "[[", x = "variable")
+  options$imputationMethods <- sapply(options$imputationVariables, "[[", x = "method")
 
   names(options$imputationMethods) <- options$imputationTargets
 
   options
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .initMiceMids <- function(jaspResults) {
-  if(!is.null(jaspResults[["MiceMids"]])) return()
+  if (!is.null(jaspResults[["MiceMids"]])) {
+    return()
+  }
 
   miceMids <- jaspBase::createJaspState()
   miceMids$dependOn(.imputationDependencies())
@@ -109,10 +104,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   jaspResults[["MiceMids"]] <- miceMids
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .initConvergencePlots <- function(jaspResults) {
-  if(!is.null(jaspResults[["ConvergencePlots"]])) return()
+  if (!is.null(jaspResults[["ConvergencePlots"]])) {
+    return()
+  }
 
   convergencePlots <- createJaspContainer(title = "Convergence Plots")
   convergencePlots$dependOn(
@@ -122,10 +119,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   jaspResults[["ConvergencePlots"]] <- convergencePlots
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .initModelContainer <- function(jaspResults, options) {
-  if(!is.null(jaspResults[["ModelContainer"]])) return()
+  if (!is.null(jaspResults[["ModelContainer"]])) {
+    return()
+  }
 
   modelContainer <- createJaspContainer()
   modelContainer$dependOn(options = c(.imputationDependencies(), .analysisDependencies(options)))
@@ -133,7 +132,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   jaspResults[["ModelContainer"]] <- modelContainer
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .makeMethodVector <- function(dataset, options) {
   method <- mice::make.method(dataset, defaultMethod = rep("", 4))
@@ -151,7 +150,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   method
 }
 
-### -Passive imputation-----------------------------------------------------------------------------------------------###
+### Passive imputation -------------------------------------------------------------------------------------------------
 
 .parseCharacterFormula <- function(x, encoded, decoded) {
   for (i in seq_along(decoded)) {
@@ -161,7 +160,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   c(var = splitted[[1]][1], eq = splitted[[1]][2])
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .processPassive <- function(dataset, options, methodVector, predictorMatrix) {
   # TODO: passive imputation might run before the other imputation models in the sequence.
@@ -171,12 +170,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   decodedMethNames <- jaspBase::decodeColNames(encodedMethNames)
 
   passiveMethVec <- strsplit(options$passiveImputation, "\n")[[1]]
-
-  passiveMat <- sapply(passiveMethVec,
-    .parseCharacterFormula,
-    encoded = encodedMethNames,
-    decoded = decodedMethNames
-  )
+  passiveMat <- sapply(passiveMethVec, .parseCharacterFormula, encoded = encodedMethNames, decoded = decodedMethNames)
 
   varsExist <- match(passiveMat[1, ], encodedMethNames)
   if (any(is.na(varsExist))) {
@@ -197,7 +191,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   list(meth = methodVector, pred = predictorMatrix)
 }
 
-### -Text-specified imputation models---------------------------------------------------------------------------------###
+### Text-specified imputation models -----------------------------------------------------------------------------------
 
 .processImpModel <- function(dataset, options, predictorMatrix) {
   formulas <- mice::make.formulas(dataset, predictorMatrix = predictorMatrix)
@@ -209,11 +203,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
   if (options$changeFullModel != "") {
     models <- strsplit(options$changeFullModel, "\n")[[1]]
-    modelsMat <- sapply(models,
-      .parseCharacterFormula,
-      encoded = encodedMethNames,
-      decoded = decodedMethNames
-    )
+    modelsMat <- sapply(models, .parseCharacterFormula, encoded = encodedMethNames, decoded = decodedMethNames)
 
     fullModelVars <- modelsMat[1, ]
 
@@ -234,11 +224,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
   if (options$changeNullModel != "") {
     models <- strsplit(options$changeNullModel, "\n")[[1]]
-    modelsMat <- sapply(models,
-      .parseCharacterFormula,
-      encoded = encodedMethNames,
-      decoded = decodedMethNames
-    )
+    modelsMat <- sapply(models, .parseCharacterFormula, encoded = encodedMethNames, decoded = decodedMethNames)
 
     nullModelVars <- modelsMat[1, ]
 
@@ -260,19 +246,20 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   formulas
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .makePredictorMatrix <- function(dataset, options) {
-  if (options$quickpred) { # Use mice::quickpred() to construct the predictor matrix
+  if (options$quickpred) {
+    # Use mice::quickpred() to construct the predictor matrix
     predMat <- with(
       options,
       mice::quickpred(
-        data    = dataset,
-        mincor  = quickpredMincor,
-        minpuc  = quickpredMinpuc,
+        data = dataset,
+        mincor = quickpredMincor,
+        minpuc = quickpredMinpuc,
         include = quickpredIncludes,
         exclude = quickpredExcludes,
-        method  = quickpredMethod
+        method = quickpredMethod
       )
     )
 
@@ -283,7 +270,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   mice::make.predictorMatrix(dataset)
 }
 
-### -Output Functions-------------------------------------------------------------------------------------------------###
+### Output Functions ---------------------------------------------------------------------------------------------------
 
 .imputeMissingData <- function(miceMids, dataset, options) {
   methVec <- .makeMethodVector(dataset, options)
@@ -321,14 +308,14 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
       with(
         options,
         mice::mice(
-          data            = dataset,
-          m               = nImps,
-          method          = methVec,
-          formulas        = impMods,
-          visitSequence   = visitSequence,
-          maxit           = nIters,
-          seed            = seed,
-          print           = FALSE
+          data = dataset,
+          m = nImps,
+          method = methVec,
+          formulas = impMods,
+          visitSequence = visitSequence,
+          maxit = nIters,
+          seed = seed,
+          print = FALSE
         )
       )
     )
@@ -345,7 +332,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   }
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .loggedEventsToTable <- function(jaspResults, options) {
   miceMids <- jaspResults[["MiceMids"]]
@@ -358,6 +345,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     if (is.null(jaspResults[["LoggedEventsTable"]])) {
       table <- createJaspTable("Logged events")
       table$dependOn(options = c(.imputationDependencies(), "printAllLoggedEvents", "maxLoggedEvents"))
+
       table$addColumnInfo(name = "Iteration", title = "Iteration", type = "integer")
       table$addColumnInfo(name = "Imputation", title = "Imputation", type = "integer")
       table$addColumnInfo(name = "Variable", title = "Imputed variable", type = "string")
@@ -390,7 +378,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   }
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .createTracePlot <- function(convergencePlots, miceMids) {
   tracePlot <- createJaspPlot(title = "Trace Plot", height = 320, width = 480)
@@ -400,7 +388,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   tracePlot$plotObject <- miceMids$object |> ggmice::plot_trace()
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .createDensityPlot <- function(convergencePlots, miceMids, options) {
   convergencePlots[["DensityPlots"]] <- jaspBase::createJaspContainer("Density Plots")
@@ -423,7 +411,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   }
 }
 
-###------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .saveImputedData <- function(jaspResults, dataset, options) {
   imps <- jaspResults[["MiceMids"]]$object
@@ -446,13 +434,15 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   )
 }
 
+### --------------------------------------------------------------------------------------------------------------------
+
 .loadImputedData <- function(options) {
   if (options[["loadImpPath"]] != "") {
     imps <- try({
       readRDS(options[["loadImpPath"]])
     })
     if (!inherits(imps, "jaspImputation")) {
-      jaspBase:::.quitAnalysis(gettext("Error: The imputed data is not created in JASP."))
+      jaspBase:::.quitAnalysis(gettext("Error: The imputed data were not created in JASP."))
     }
   } else {
     imps <- NULL
@@ -460,28 +450,28 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   return(imps)
 }
 
-.createRHatsTable <- function(jaspResults, options) {
-  if (is.null(jaspResults[["RHatsTable"]])) {
-    rHats <- createJaspTable("RHat Convergence Diagnostics")
-    rHats$dependOn(options = c(.imputationDependencies(), "rHats"))
-    rHats$addColumnInfo(name = "variable", title = "Variable", type = "string")
-    rHats$addColumnInfo(name = "MissProp", title = "Missingness Proportion", type = "number")
-    rHats$addColumnInfo(name = "Rhat.M.imp", title = "RHat of means", type = "number")
-    rHats$addColumnInfo(name = "Rhat.Var.imp", title = "RHat of variances", type = "number")
+### --------------------------------------------------------------------------------------------------------------------
 
-    jaspResults[["RHatsTable"]] <- rHats
-  } else {
-    rHats <- jaspResults[["RHatsTable"]]
+.createRHatsTable <- function(jaspResults, options) {
+  if (!is.null(jaspResults[["RHatsTable"]])) {
+    return()
   }
+
+  rHats <- createJaspTable("RHat Convergence Diagnostics")
+  rHats$dependOn(options = c(.imputationDependencies(), "rHats"))
+
+  rHats$addColumnInfo(name = "variable", title = "Variable", type = "string")
+  rHats$addColumnInfo(name = "MissProp", title = "Missingness Proportion", type = "number")
+  rHats$addColumnInfo(name = "Rhat.M.imp", title = "RHat of means", type = "number")
+  rHats$addColumnInfo(name = "Rhat.Var.imp", title = "RHat of variances", type = "number")
+
   rhat_res <- miceadds::Rhat.mice(jaspResults[["MiceMids"]]$object)
 
-  rHats$addRows(
-    subset(
-      rhat_res,
-      MissProp > 0
-    )
-  )
+  rHats$addRows(subset(rhat_res, MissProp > 0))
+
   if (any(rhat_res$MissProp < sqrt(.Machine$double.eps))) {
     rHats$addFootnote(paste0("Complete variables are not included in the table."))
   }
+
+  jaspResults[["RHatsTable"]] <- rHats
 }

@@ -23,20 +23,18 @@ Group
 {
 	property alias loadImpPath: imputationSelector.value
 
-	info: qsTr("You can load a previously imputed dataset to run the selected analysis on an already imputed version of the data.")
-
-	id:								importSection
-	title:							qsTr("Import Imputed Data")
+	info:	qsTr("You can load previously imputed data to run the selected analysis without generating new imputations.")
+	id:		importSection
+	title:	qsTr("Import Imputed Data")
 
 	FileSelector
 	{
 		id:                 imputationSelector
 		name:				"loadImpPath"
-		label:				qsTr("Imputed data")
+		label:				qsTr("Path to imputed data file:")
 		placeholderText:	qsTr("e.g., location/imputations.jaspImp")
 		filter:				"*.jaspImp"
 		save:				false
 		fieldWidth:			180 * preferencesModel.uiScale
 	}
 }
-

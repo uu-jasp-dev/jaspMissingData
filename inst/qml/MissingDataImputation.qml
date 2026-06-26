@@ -19,8 +19,8 @@
 import QtQuick
 import JASP
 import JASP.Controls
-import "./regression"	as	Regression
-import "./imputation"	as	Imputation
+import "./regression" as Regression
+import "./imputation" as Imputation
 
 // All Analysis forms must be built with the Form QML item
 Form
@@ -29,15 +29,15 @@ Form
 
 	Group
 	{
-		title:	qsTr("Analyses")
-			CheckBox
-	{
-		name:		"linreg"
-		label:		qsTr("Linear Regression")
-		id:			linreg
-		checked:	false
-	}
-		
+		title: qsTr("Analyses")
+		CheckBox
+		{
+			id:			linreg
+			name:		"linreg"
+			label:		qsTr("Linear Regression")
+			checked:	false
+		}
+
 		Regression.RegressionLinear { visible: linreg.checked }
 	}
 }
