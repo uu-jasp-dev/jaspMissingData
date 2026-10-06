@@ -45,8 +45,10 @@
   }
 
   if (options$coefficientEstimate && is.null(modelContainer[["coeffTable"]])) {
-    jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData, options, position = 3)
-    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, impData, options)
+    ## We can safely pass 'impData[[1]]' below because the dataset is only used to compute the standardized coefficients
+    ## and we're just going to overwrite those on the next line.
+    jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData[[1]], options, position = 3)
+    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, options)
   }
 
   # TODO (KML): Check what we can do about the bootstrapping and collinearity tables
@@ -109,7 +111,7 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.addPooledStdCoefficients <- function(coefficientsTable, model, dataset, options) {
+.addPooledStdCoefficients <- function(coefficientsTable, model, options) {
   coefTab <- coefficientsTable$toRObject()
 
   for (mod in model) {
@@ -118,7 +120,7 @@
       next
     }
 
-    stdBeta <- .pooledStdBetas(mod, dataset, options)
+    stdBeta <- .pooledStdBetas(mod)
     modRows <- coefTab$model == mod$title
 
     for (x in names(stdBeta)) {
@@ -131,14 +133,20 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.pooledStdBetas <- function(model, data, options) {
-  numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
-  pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
-    rowMeans() |>
+.pooledStdBetas <- function(model) {
+  miFits <- model$fit$fits$analyses
+
+  sdY <- sapply(miFits, function(x) var(x$model[[1]])) |>
+    mean() |>
     sqrt()
 
-  sdX <- pooledSd[-1]
-  sdY <- pooledSd[1]
+  sdX <- sapply(
+    miFits,
+    function(x) model.matrix(x)[, -1, drop = FALSE] |> apply(2, var)
+  ) |>
+    as.matrix(ncol = length(miFits)) |>
+    rowMeans() |>
+    sqrt()
 
   beta <- coef(model$fit)[names(sdX)]
   beta * sdX / sdY
@@ -183,17 +191,14 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .checkRegressionValidVars <- function(options, jaspResults) {
-  regvars <- c(options$dependent, options$covariates, options$factors)
-  impvars <- colnames(jaspResults[["MiceMids"]]$object$data)
-  if (any(!regvars %in% impvars)) {
-    notimputed <- regvars[which(!regvars %in% impvars)]
+  regVars <- with(options, c(dependent, covariates, factors)) |> unlist()
+  impVars <- colnames(jaspResults[["MiceMids"]]$object$data)
+  notImputed <- setdiff(regVars, impVars)
+  if (length(notImputed) > 0) {
     stop(
-      "The variables ",
-      paste0(
-        jaspBase::decodeColNames(notimputed),
-        collapse = ", ",
-        " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."
-      ),
+      "The variables {",
+      paste0(jaspBase::decodeColNames(notImputed), collapse = ", "),
+      "} are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification.",
       call. = FALSE
     )
   }

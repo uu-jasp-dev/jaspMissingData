@@ -1,19 +1,3 @@
-# rm(list = ls(all = TRUE))
-#
-# remotes::install_github("uu-jasp-dev/jaspRegression@missingData")
-#
-# setupJaspTools()
-#
-# library(testthat)
-# library(mice)
-# library(dplyr)
-# library(jaspTools)
-#
-# setPkgOption("module.dirs", here::here())
-#
-# setwd(here::here())
-# source(test_path("setup.R"))
-
 boys <- readRDS(test_path("fixtures", "boys.rds"))
 miceMids <- readRDS(test_path("fixtures", "mice_mids.rds"))
 options <- readRDS(test_path("fixtures", "lin_reg_options.rds"))

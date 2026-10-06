@@ -42,6 +42,15 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
+.readyToLoad <- function(options) {
+  with(
+    options,
+    impDataSource == "loadImpData" && loadImpPath != ""
+  )
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
 .readyForMi <- function(options) {
   with(
     options,
@@ -66,6 +75,8 @@
 
 .imputationDependencies <- function() {
   c(
+    "impDataSource",
+    "loadImpPath",
     "imputationVariables",
     "passiveImputation",
     "changeFullModel",
